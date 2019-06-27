@@ -54,7 +54,7 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 	defer wg.Done()
 
 	if !noPull {
-		if _, err := client.ImagePull(ctx, img, types.ImagePullOptions{All: true}); err != nil {
+		if _, err := client.ImagePull(ctx, img, types.ImagePullOptions{All: false}); err != nil {
 			errCh <- errors.Wrap(err, "error pulling image")
 			return
 		}
