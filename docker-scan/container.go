@@ -34,7 +34,7 @@ func scanContainer(ctx context.Context, client dockerclient.APIClient, c types.C
 		Image:   c.Image,
 		Running: info.State.Running,
 	}
-	// TODO: inspect container for risks
+	// inspect container for risks
 	if info.HostConfig.Privileged {
 		alert = true
 		res.Privileged = true
