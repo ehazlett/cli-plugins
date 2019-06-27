@@ -1,6 +1,8 @@
 # Docker Scan
 Docker scan is an image vulnerability scanner and container risk analyzer.
 
+Note: be careful when scanning a large amount of images at once.  You might get [rate limited](https://github.com/aquasecurity/microscanner#fair-use-policy).
+
 ```bash
 Usage:  docker scan COMMAND
 
