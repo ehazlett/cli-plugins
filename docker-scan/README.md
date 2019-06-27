@@ -29,14 +29,16 @@ Options:
 Usage:
 
 ```bash
-$> docker scan images --no-pull --token=$TOKEN ubuntu:xenial debian:latest redis:latest ubuntu:latest debian:jessie mariadb:latest
-ID             TOTAL LOW MEDIUM HIGH MALWARE
-ubuntu:xenial  11    8   3      0    0
-ubuntu:latest  6     4   2      0    0
-debian:jessie  0     0   0      0    0
-debian:latest  0     0   0      0    0
-redis:latest   0     0   0      0    0
-mariadb:latest 8     6   2      0    0
+$> docker scan images --no-pull --token=$TOKEN ubuntu:latest ubuntu:xenial debian:latest redis:latest debian:jessie mariadb:latest postgres:latest centos:latest
+ID              TOTAL LOW MEDIUM HIGH MALWARE
+ubuntu:latest   6     4   2      0    0
+ubuntu:xenial   11    8   3      0    0
+debian:latest   0     0   0      0    0
+redis:latest    0     0   0      0    0
+debian:jessie   0     0   0      0    0
+mariadb:latest  8     6   2      0    0
+postgres:latest 1     0   0      1    0
+centos:latest   52    19  20     13   0
 ```
 
 # Container Scanning
