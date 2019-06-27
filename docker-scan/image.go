@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"sync"
 	"time"
 
@@ -14,6 +15,20 @@ import (
 	"github.com/docker/docker/api/types/container"
 	dockerclient "github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/pkg/errors"
+)
+
+const (
+	scanTemplate = `FROM ehazlett/microscanner:latest as scanner
+
+FROM {{.Image}} as {{.BuildImage}}
+USER root
+COPY --from=scanner /microscanner /microscanner
+ARG token
+# TODO: verify ca
+RUN /microscanner --continue-on-failure --no-verify ${token} > /scan.json
+ENTRYPOINT []
+CMD cat /scan.json`
 )
 
 type imageScanConfig struct {
@@ -40,7 +55,7 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 
 	if !noPull {
 		if _, err := client.ImagePull(ctx, img, types.ImagePullOptions{All: true}); err != nil {
-			errCh <- err
+			errCh <- errors.Wrap(err, "error pulling image")
 			return
 		}
 	}
@@ -52,7 +67,7 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 	tmpl := template.New("dockerfile")
 	t, err := tmpl.Parse(scanTemplate)
 	if err != nil {
-		errCh <- err
+		errCh <- errors.Wrap(err, "error parsing dockerfile template")
 		return
 	}
 
@@ -78,7 +93,7 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 		return
 	}
 	dfr := bytes.NewReader(buf.Bytes())
-	if _, err := client.ImageBuild(
+	buildResp, err := client.ImageBuild(
 		ctx,
 		dfr,
 		types.ImageBuildOptions{
@@ -92,7 +107,14 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 				"token": &token,
 			},
 		},
-	); err != nil {
+	)
+	if err != nil {
+		errCh <- errors.Wrapf(err, "error building scan image %s", img)
+		return
+	}
+	defer buildResp.Body.Close()
+	buildOutput, err := ioutil.ReadAll(buildResp.Body)
+	if err != nil {
 		errCh <- err
 		return
 	}
@@ -103,7 +125,7 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 		Tty:   false,
 	}, nil, nil, "")
 	if err != nil {
-		errCh <- err
+		errCh <- errors.Wrapf(err, "error creating scan container: build result: %s", string(buildOutput))
 		return
 	}
 	defer func() {
@@ -112,7 +134,7 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 	}()
 
 	if err := client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		errCh <- err
+		errCh <- errors.Wrapf(err, "error starting scan container %s", resp.ID)
 		return
 	}
 
@@ -124,12 +146,12 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 		Details:    false,
 	})
 	if err != nil {
-		errCh <- err
+		errCh <- errors.Wrapf(err, "error getting logs from scan container (%s)", img)
 		return
 	}
 
 	if _, err := stdcopy.StdCopy(logs, nil, out); err != nil {
-		errCh <- err
+		errCh <- errors.Wrapf(err, "error parsing logs from scan container (%s)", img)
 		return
 	}
 
@@ -137,7 +159,7 @@ func scanImage(ctx context.Context, client dockerclient.APIClient, img, token st
 		Image: img,
 	}
 	if err := json.NewDecoder(logs).Decode(results); err != nil {
-		errCh <- err
+		errCh <- errors.Wrapf(err, "error decoding logs for scan container (%s)", img)
 		return
 	}
 	resultCh <- results

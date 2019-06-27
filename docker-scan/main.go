@@ -17,18 +17,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	scanTemplate = `FROM ehazlett/microscanner:latest as scanner
-
-FROM {{.Image}} as {{.BuildImage}}
-USER root
-COPY --from=scanner /microscanner /microscanner
-ARG token
-# TODO: verify ca
-RUN /microscanner --no-verify ${token} > /scan.json
-CMD cat /scan.json`
-)
-
 var (
 	noPull         bool
 	imageScanToken string
@@ -54,7 +42,7 @@ func main() {
 					for {
 						select {
 						case err := <-errCh:
-							logrus.Error(err)
+							fmt.Fprintln(os.Stderr, err.Error())
 						default:
 						}
 					}
@@ -105,7 +93,7 @@ func main() {
 					for {
 						select {
 						case err := <-errCh:
-							logrus.Error(err)
+							fmt.Fprintln(os.Stderr, err.Error())
 						default:
 						}
 					}
