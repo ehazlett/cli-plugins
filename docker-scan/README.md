@@ -51,25 +51,9 @@ Usage
 
 ```bash
 $> docker scan containers
-ID            IMAGE              RUNNING  PRIVILEGED  PUBLISHEDALLPORTS  HOSTMOUNTS  CAPADD
-b1378eb528be  docker-dev:carbon  false    true        false              2
-40ca044ae373  alpine:latest      true     false       false              1           NET_ADMIN,MKNOD,KILL
-29560cc8a55c  nginx:alpine       true     false       true               0
-e292fa16707c  alpine:latest      true     false       false              1           NET_ADMIN
-4a786667045f  docker-dev:carbon  false    true        false              2
-ce07ba57c843  docker-dev:carbon  false    true        false              2
-56cfc4864029  docker-dev:carbon  false    true        false              2
-8b273f0d7337  docker-dev:carbon  false    true        false              2
-93fca3e10864  docker-dev:carbon  false    true        false              2
-ac8b6bf3c5e4  docker-dev:carbon  false    true        false              2
-71952d6bf547  docker-dev:carbon  false    true        false              2
-a467b8cce8bd  docker-dev:carbon  false    true        false              2
-bcb3530d62dd  docker-dev:carbon  true     true        false              3
-ab82a457bad4  docker-dev:carbon  false    true        false              2
-cf88d432d1e1  docker-dev:carbon  false    true        false              2
-d0ee0b012946  docker-dev:carbon  false    true        false              2
-658c96db160f  docker-dev:carbon  false    true        false              2
-eba18fdb8f59  docker-dev:carbon  true     true        false              2
-6fa5ed25d5dd  docker-dev:carbon  false    true        false              2
-0d74f15271ed  docker-dev:carbon  true     true        false              2
+ID            IMAGE			RUNNING  PRIVILEGED  PUBLISHEDALLPORTS  HOSTMOUNTS  CAPADD
+b1378eb528be  ehazlett/demo:latest	false    true        false              2
+40ca044ae373  alpine:latest		true     false       false              1           NET_ADMIN,MKNOD,KILL
+29560cc8a55c  nginx:alpine		true     false       true               0
+e292fa16707c  alpine:latest		true     false       false              1           NET_ADMIN
 ```
