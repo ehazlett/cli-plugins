@@ -158,6 +158,6 @@ func main() {
 		manager.Metadata{
 			SchemaVersion: "0.1.0",
 			Vendor:        "@ehazlett",
-			Version:       "dev",
+			Version:       "0.1.0",
 		})
 }
